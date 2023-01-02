@@ -3,6 +3,8 @@ const UserService = require('../../service/userService')
 const fs = require("fs");
 const qs =require('qs')
 const cookie = require("cookie");
+const formidable = require("formidable");
+const path = require("path");
 class PostHandleRouting {
     static getHome(posts, indexHtml) {
         let tbody = '';
@@ -20,21 +22,12 @@ class PostHandleRouting {
                           <h4 ><a href="" style="text-decoration: none; color: white">${post.fullName}</a></h4> <p style="font-size: 12px ">${post.fullName} đang cảm thấy : ${post.status}</p>
                           <span style="font-size: 10px ">${post.createTime}</span>
                        </div>
-                        <div class="col-sm-2" style="text-align: right; padding: 0;color: #1a1a1a">
-                          <div class="dropdown">
-                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #1a1a1a"></a>
-                               <ul class="dropdown-menu">
-                                  <li><a class="dropdown-item" href="#">Chỉnh Sửa</a></li>
-                                  <li><a class="dropdown-item" href="#">Xóa Bài Viết</a></li>
-                               </ul>
-                          </div>
-                          </div>
                        <div class=" text-white" style="overflow-wrap: break-word;  text-align: left; padding: 0; margin-top: 5px">
                         <p>${post.content}</p>
                        </div>
                      </div>
                    </div>
-                    <div><img src="/public/${post.imagePost}" alt="Khong Co" height="600px" width="auto""></div>
+                    <div><img src="/public/${post.imagePost}" height="600px" width="auto""></div>
                 </div>
               </div>
             </div>`
@@ -43,9 +36,6 @@ class PostHandleRouting {
         return indexHtml;
     }
     static showHome(req, res) {
-        const cookies = cookie.parse(req.headers.cookie || '');
-        let userCurrent = JSON.parse(cookies.user);
-        let id = userCurrent.id
         fs.readFile('./views/home.html', 'utf-8', async (err, homeHtml) => {
             if (err) {
                 console.log(err)
@@ -80,18 +70,141 @@ class PostHandleRouting {
                } else {
                    const cookies = cookie.parse(req.headers.cookie || '');
                    let userCurrent = JSON.parse(cookies.user);
-                   let id = userCurrent.id
+                   let idUser = userCurrent.id
                    let today = new Date();
                    let date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
                    let time = today.getHours()+'-'+today.getMinutes();
                    let dateTime = time + '/' + date
                    let post = qs.parse(data);
-                   await PostService.createPost(post, dateTime, id)
-                   res.writeHead(301, {'location': `/home`});
+                   let a = await PostService.createPost(post, dateTime, idUser)
+                   res.writeHead(301, {'location': `/posts/formCreateImage/${a.insertId}`});
                    res.end();
                }
            })
        }
     }
+    static showCreateImage(req, res, id) {
+        if (req.method === 'GET') {
+            fs.readFile('./views/user/formCreateImage.html', 'utf-8', (err, createHtml) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    createHtml = createHtml.replace('{id}', id)
+                    res.writeHead(200, 'text/html');
+                    res.write(createHtml);
+                    res.end();
+                }
+            })
+        } else {
+            let form1 = new formidable.IncomingForm();
+            form1.parse(req, async function (err, fields, files) {
+                if (err) {
+                    console.log(err)
+                }
+                let tmpPath = files.img.filepath;
+                let newPath = path.join(__dirname, '..', '..', "public", files.img.originalFilename);
+                await fs.readFile(newPath, (err) => {
+                    if (err) {
+                        fs.copyFile(tmpPath, newPath, (err) => {
+                            if (err) throw err;
+                        });
+                    }
+                })
+                console.log(files.img.originalFilename)
+                await PostService.createImagePost(files.img.originalFilename, id)
+                res.writeHead(301, {'location': '/home'})
+                res.end();
+            });
+        }
+    }
+    static deletePost(req, res, id) {
+        if (req.method === 'POST') {
+           let a = PostService.deletePost(id);
+            res.writeHead(301, {'location': `/pageUser`});
+            res.end();
+        }
+    }
+    static createPostImage(req,res, id) {
+        if (req.method === 'POST') {
+            let form1 = new formidable.IncomingForm();
+            form1.parse(req, async function (err, fields, files) {
+                if (err) {
+                    console.log(err)
+                }
+                let tmpPath2 = files.img.filepath;
+                let newPath2 = path.join(__dirname, '..', '..', "public", files.img.originalFilename);
+                await fs.readFile(newPath2, (err) => {
+                    if (err) {
+                        fs.copyFile(tmpPath2, newPath2, (err) => {
+                            if (err) throw err;
+                        });
+                    }
+                })
+                await PostService.createImagePost(files.img.originalFilename, id)
+                res.writeHead(301, {'location': '/createPosts'})
+                res.end();
+            });
+        } else {
+            fs.readFile('./views/user/formCreateImage.html', 'utf-8', async (err, createHtml) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    res.writeHead(200, 'text/html');
+                    res.write(createHtml);
+                    res.end();
+                }
+            })
+        }
+    }
+    static editPosts(req, res, id) {
+        if (req.method === 'GET') {
+            fs.readFile('./views/user/editPosts.html', 'utf-8', async (err, editPosts) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    let posts = await PostService.finById(id)
+                    editPosts = editPosts.replace('{content}', posts[0].content);
+                    editPosts = editPosts.replace('{status}', posts[0].status);
+                    res.writeHead(200, 'text/html');
+                    res.write(editPosts);
+                    res.end();
+                }
+            })
+        } else {
+            let post = '';
+            req.on('data', chuck => {
+                post += chuck;
+            })
+            req.on('end', async (err) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    let today = new Date();
+                    let date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
+                    let time = today.getHours()+'-'+today.getMinutes();
+                    let dateTime = time + '/' + date
+                    let posts = qs.parse(post);
+                    let b = await PostService.editPost(posts, id, dateTime)
+                    console.log(b)
+                    res.writeHead(301, {'location': `/posts/editImagePost/${b.insertId}`});
+                    res.end();
+                }
+            })
+        }
+    }
+    static editImagePost(req,res, id) {
+        if (req.method === 'GET') {
+            fs.readFile('./views/user/editImagePost.html', 'utf-8', async (err, editHtml) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    res.writeHead(200, 'text/html');
+                    res.write(editHtml);
+                    res.end();
+                }
+            })
+        }
+    }
+
 }
 module.exports = PostHandleRouting;
