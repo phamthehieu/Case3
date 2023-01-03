@@ -22,11 +22,11 @@
     <div class="navbar-collapse" id="navbarSupportedContent" style="margin-left: 15%;">
       <ul class="nav justify-content-center">
         <li class="nav-item text-white" style="margin-right: 200px">
-          <a class="nav-link active" aria-current="page" href="/home" title="HOME" data-toggle="popover" data-trigger="hover" style="color: #a6a6a6"><button type="button" class="btn btn-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16" style="color: #a6a6a6">
+          <a class="nav-link active" aria-current="page" href="/user/home" title="HOME" data-toggle="popover" data-trigger="hover" style="color: #a6a6a6"><button type="button" class="btn btn-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16" style="color: #a6a6a6">
             <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/></svg></button></a>
         </li>
         <li class="nav-item text-white" style="margin-right: 200px">
-          <a class="nav-link active" aria-current="page" href="/pageUser" title="Trang Cá Nhân" data-toggle="popover" data-trigger="hover"><button type="button" class="btn btn-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16" style="color: #a6a6a6">
+          <a class="nav-link active" aria-current="page" href="/user/pageUser" title="Trang Cá Nhân" data-toggle="popover" data-trigger="hover"><button type="button" class="btn btn-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16" style="color: #a6a6a6">
             <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
             <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
           </svg>
@@ -47,7 +47,7 @@
     </div>
   </div>
   <form action="" style="margin-right: 90px">
-    <a class="nav-link active" aria-current="page" href="/login"><button type="button" class="btn btn-transparent" style="color: #a6a6a6">Đăng Xuất<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16" style="color: #a6a6a6">
+    <a class="nav-link active" aria-current="page" href="/user/login"><button type="button" class="btn btn-transparent" style="color: #a6a6a6">Đăng Xuất<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16" style="color: #a6a6a6">
       <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
       <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
     </svg>
@@ -62,7 +62,7 @@
             <div class="mb-3">
               {image}
               <br>
-              <a href="/formEditImage"><button type="submit" class="btn btn-outline-secondary text-white" style="margin-top: 10px">Chỉnh ảnh</button></a>
+              <a href="/user/formEditImage/{id}"><button type="submit" class="btn btn-outline-secondary text-white" style="margin-top: 10px">Chỉnh ảnh</button></a>
             </div>
           <form action="" method="post">
             <div class="col-sm-5 container text-center text-white">

@@ -1,16 +1,16 @@
 const UserHandleRouting = require('./handle/userHandleRouting');
 const PostHandleRouting = require('./handle/postHandleRouting')
 const router = {
-    'login' : UserHandleRouting.login,
+    'user/login' : UserHandleRouting.login,
     'user/signUp': UserHandleRouting.signUp,
-    'home' : PostHandleRouting.showHome,
-    'pageUser' : UserHandleRouting.showPage,
+    'user/home' : PostHandleRouting.showHome,
+    'user/pageUser' : UserHandleRouting.checkIdFormUser,
     'user/editInfo' : UserHandleRouting.editUser,
-    'formEditImage' : UserHandleRouting.editImage,
-    'createPosts' : PostHandleRouting.showCreatePosts,
+    'user/formEditImage' : UserHandleRouting.editImage,
+    'user/createPosts' : PostHandleRouting.showCreatePosts,
     'posts/formCreateImage' : PostHandleRouting.showCreateImage,
     'posts/delete' : PostHandleRouting.deletePost,
     'posts/editPosts' : PostHandleRouting.editPosts,
-    'posts/editImagePosts' : PostHandleRouting.editImagePost
+    'posts/editImagePost' : PostHandleRouting.editImagePost
 }
 module.exports = router;

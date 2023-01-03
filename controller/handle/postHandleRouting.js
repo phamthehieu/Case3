@@ -19,7 +19,7 @@ class PostHandleRouting {
                           <div class="container"><img src="/public/${post.userImage}" alt="Khong Co"  class="rounded-circle" alt="Quantrimang.com" width="50" height="auto"></div>
                        </div>
                        <div class="col-sm-9" style="text-align: left; padding: 0">
-                          <h4 ><a href="" style="text-decoration: none; color: white">${post.fullName}</a></h4> <p style="font-size: 12px ">${post.fullName} đang cảm thấy : ${post.status}</p>
+                          <h4 ><a href="/user/pageUser/${post.idUser}" style="text-decoration: none; color: white">${post.fullName}</a></h4> <p style="font-size: 12px ">${post.fullName} đang cảm thấy : ${post.status}</p>
                           <span style="font-size: 10px ">${post.createTime}</span>
                        </div>
                        <div class=" text-white" style="overflow-wrap: break-word;  text-align: left; padding: 0; margin-top: 5px">
@@ -112,7 +112,7 @@ class PostHandleRouting {
                 })
                 console.log(files.img.originalFilename)
                 await PostService.createImagePost(files.img.originalFilename, id)
-                res.writeHead(301, {'location': '/home'})
+                res.writeHead(301, {'location': '/user/home'})
                 res.end();
             });
         }
@@ -120,7 +120,7 @@ class PostHandleRouting {
     static deletePost(req, res, id) {
         if (req.method === 'POST') {
            let a = PostService.deletePost(id);
-            res.writeHead(301, {'location': `/pageUser`});
+            res.writeHead(301, {'location': `/user/pageUser`});
             res.end();
         }
     }
@@ -141,7 +141,7 @@ class PostHandleRouting {
                     }
                 })
                 await PostService.createImagePost(files.img.originalFilename, id)
-                res.writeHead(301, {'location': '/createPosts'})
+                res.writeHead(301, {'location': '/user/createPosts'})
                 res.end();
             });
         } else {
@@ -185,8 +185,7 @@ class PostHandleRouting {
                     let dateTime = time + '/' + date
                     let posts = qs.parse(post);
                     let b = await PostService.editPost(posts, id, dateTime)
-                    console.log(b)
-                    res.writeHead(301, {'location': `/posts/editImagePost/${b.insertId}`});
+                    res.writeHead(301, {'location': `/posts/editImagePost/${id}`});
                     res.end();
                 }
             })
@@ -198,11 +197,32 @@ class PostHandleRouting {
                 if (err) {
                     console.log(err)
                 } else {
+                    editHtml = editHtml.replace('{id}', id)
                     res.writeHead(200, 'text/html');
                     res.write(editHtml);
                     res.end();
                 }
             })
+        } else {
+            let form3 = new formidable.IncomingForm();
+            form3.parse(req, async function (err, fields, files) {
+                if (err) {
+                    console.log(err)
+                }
+                let tmpPath3 = files.img.filepath;
+                let newPath3 = path.join(__dirname, '..', '..', "public", files.img.originalFilename);
+                await fs.readFile(newPath3, (err) => {
+                    if (err) {
+                        fs.copyFile(tmpPath3, newPath3, (err) => {
+                            if (err) throw err;
+                        });
+                    }
+                })
+                console.log(files.img.originalFilename,id)
+                await PostService.createImagePost(files.img.originalFilename, id)
+                res.writeHead(301, {'location': '/user/pageUser'})
+                res.end();
+            });
         }
     }
 

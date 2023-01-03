@@ -1,13 +1,13 @@
 const fs = require('fs')
 const qs = require('qs')
 const UserService = require('../../service/userService')
-const PostService = require ('../../service/postService');
+const PostService = require('../../service/postService');
 const cookie = require('cookie')
 const formidable = require('formidable');
 const path = require("path");
 
 class UserHandleRouting {
-    login (req, res) {
+    login(req, res) {
         if (req.method === 'GET') {
             fs.readFile('./views/user/login.html', 'utf-8', async (err, loginHtml) => {
                 if (err) {
@@ -19,11 +19,11 @@ class UserHandleRouting {
                 }
             })
         } else {
-            let data ='';
-            req.on ('data', chuck => {
+            let data = '';
+            req.on('data', chuck => {
                 data += chuck;
             })
-            req.on ('end', async (err) => {
+            req.on('end', async (err) => {
                 if (err) {
                     console.log(err)
                 } else {
@@ -34,10 +34,10 @@ class UserHandleRouting {
                             httpOnly: true,
                             maxAge: 60 * 60 * 24 * 7
                         }));
-                        res.writeHead(301 , {'location':'/pageUser'})
+                        res.writeHead(301, {'location': '/user/pageUser'})
                         res.end();
                     } else {
-                        res.writeHead(301 , {'location':'/login'})
+                        res.writeHead(301, {'location': '/user/login'})
                         res.end();
                     }
                 }
@@ -65,8 +65,8 @@ class UserHandleRouting {
                     console.log(err)
                 } else {
                     let user = qs.parse(data);
-                     await UserService.signUp(user);
-                    res.writeHead(301 , {'location':'/login'})
+                    await UserService.signUp(user);
+                    res.writeHead(301, {'location': '/user/login'})
                     res.end();
                 }
             })
@@ -75,7 +75,7 @@ class UserHandleRouting {
     static getPageUser(posts, indexHtml) {
         let tbody = '';
         posts.map((post, index) => {
-            tbody +=`
+            tbody += `
             <div class="col-sm-12" style="margin-top: 30px">
               <div class="row align-items-start">
                 <div class="col-sm-5 container text-center text-white">
@@ -100,7 +100,7 @@ class UserHandleRouting {
                                      </div>
                                      <div class="modal-body">Có Xóa Không</div>
                                             <div class="modal-footer">
-                                                 <a href="/home"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button></a>
+                                                 <a href="/user/home"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button></a>
                                             <form action="/posts/delete/${post.idPost}" method="post"><button type="submit" class="btn btn-primary">Có</button></form>
                                              </div>
                                          </div>
@@ -117,7 +117,53 @@ class UserHandleRouting {
               </div>
             </div>`
         })
-        indexHtml = indexHtml.replace('{post}',tbody)
+        indexHtml = indexHtml.replace('{post}', tbody)
+        return indexHtml;
+    }
+    static getPageFriend(posts, indexHtml) {
+        let tbody = '';
+        posts.map((post, index) => {
+            tbody += `
+            <div class="col-sm-12" style="margin-top: 30px">
+              <div class="row align-items-start">
+                <div class="col-sm-5 container text-center text-white">
+                  <div class="container text-center">
+                     <div class="row align-items-start">
+                      <div class="col-sm-1" style="text-align: left; padding: 0">
+                          <div class="container"><img src="/public/${post.userImage}" alt="Khong Co"  class="rounded-circle" alt="Quantrimang.com" width="50" height="auto"></div>
+                       </div>
+                       <div class="col-sm-9" style="text-align: left; padding: 0">
+                          <h4 ><a href="" style="text-decoration: none; color: white">${post.fullName}</a></h4> <p style="font-size: 12px ">${post.fullName} đang cảm thấy : ${post.status}</p>
+                          <span style="font-size: 10px ">${post.createTime}</span>
+                       </div>
+                        <div class="col-sm-2" style="text-align: right; padding: 0;color: #1a1a1a">
+                    <div class="modal fade secondary" id="staticBackdrop${post.idPost}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                 <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                     </div>
+                                     <div class="modal-body">Có Xóa Không</div>
+                                            <div class="modal-footer">
+                                                 <a href="/user/home"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button></a>
+                                            <form action="/posts/delete/${post.idPost}" method="post"><button type="submit" class="btn btn-primary">Có</button></form>
+                                             </div>
+                                         </div>
+                                    </div>
+                               </div></td>
+                          </div>
+                       <div class=" text-white" style="overflow-wrap: break-word;  text-align: left; padding: 0; margin-top: 5px">
+                        <p>${post.content}</p>
+                       </div>
+                     </div>
+                   </div>
+                    <div><img src="/public/${post.imagePost}" height="600px" width="auto""></div>
+                </div>
+              </div>
+            </div>`
+        })
+        indexHtml = indexHtml.replace('{post}', tbody)
         return indexHtml;
     }
     static getImageEdit(images, editHtml) {
@@ -130,7 +176,7 @@ class UserHandleRouting {
         editHtml = editHtml.replace('{image}', tbody);
         return editHtml;
     }
-    editUser(req,res) {
+    editUser(req, res) {
         const cookies = cookie.parse(req.headers.cookie || '');
         let userCurrent = JSON.parse(cookies.user);
         let id = userCurrent.id
@@ -165,12 +211,13 @@ class UserHandleRouting {
                 } else {
                     let user = qs.parse(editData);
                     let data = await UserService.editUser(user, id)
-                    res.writeHead(301, {'location': `/pageUser`});
+                    res.writeHead(301, {'location': `/user/pageUser`});
                     res.end();
                 }
             })
         }
     }
+
     editImage(req, res, id) {
         if (req.method === 'POST') {
             let form = new formidable.IncomingForm();
@@ -188,7 +235,7 @@ class UserHandleRouting {
                     }
                 })
                 await UserService.editImage(files.img.originalFilename, id)
-                res.writeHead(301, {'location': '/createPosts'})
+                res.writeHead(301, {'location': '/user/editInfo'})
                 res.end();
             });
         } else {
@@ -203,6 +250,7 @@ class UserHandleRouting {
             })
         }
     }
+
     static getPage(posts, indexHtml) {
         let tbody = '';
         posts.map((post, index) => {
@@ -216,31 +264,59 @@ class UserHandleRouting {
                           <div class="container"><img src="/public/${post.userImage}" alt="Khong Co"  class="rounded-circle"alt="Quantrimang.com" width="100" height="auto"></div>
                        </div>
                        <div class="col-sm-6" style="text-align: left; padding: 12% 0">
-                          <h1>${post.fullName}</h1><p>${post.status}</p>
+                          <h1>${post.fullName}</h1>
                             <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-at-fill" viewBox="0 0 16 16"><path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2H2Zm-2 9.8V4.698l5.803 3.546L0 11.801Zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586l-1.239-.757ZM16 9.671V4.697l-5.803 3.546.338.208A4.482 4.482 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671Z"/><path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034v.21Zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791Z"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg> Email: ${post.userEmail}</p>
                           <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-balloon-heart-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.49 10.92C19.412 3.382 11.28-2.387 8 .986 4.719-2.387-3.413 3.382 7.51 10.92l-.234.468a.25.25 0 1 0 .448.224l.04-.08c.009.17.024.315.051.45.068.344.208.622.448 1.102l.013.028c.212.422.182.85.05 1.246-.135.402-.366.751-.534 1.003a.25.25 0 0 0 .416.278l.004-.007c.166-.248.431-.646.588-1.115.16-.479.212-1.051-.076-1.629-.258-.515-.365-.732-.419-1.004a2.376 2.376 0 0 1-.037-.289l.008.017a.25.25 0 1 0 .448-.224l-.235-.468ZM6.726 1.269c-1.167-.61-2.8-.142-3.454 1.135-.237.463-.36 1.08-.202 1.85.055.27.467.197.527-.071.285-1.256 1.177-2.462 2.989-2.528.234-.008.348-.278.14-.386Z"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg> Ngày Sinh: ${post.birthday}</p>
                           <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg> Tuổi: ${post.age}</p>
                        </div>
                         <div class="col-sm-4" style="text-align: right; padding:13% 0">
-                          <a href="user/editInfo/{id}"><button type="button" class="btn btn-outline-secondary text-white" >Chỉnh Sửa Thông Tin</button></a>
+                          <a href="/user/editInfo/${post.id}"><button type="button" class="btn btn-outline-secondary text-white" >Chỉnh Sửa Thông Tin</button></a>
                         </div>
                   </div>  
                 </div>
               </div>`
         })
-        indexHtml = indexHtml.replace('{user}',tbody)
+        indexHtml = indexHtml.replace('{user}', tbody)
         return indexHtml;
     }
-    showPage(req, res) {
-        const cookies = cookie.parse(req.headers.cookie || '');
-        let userCurrent = JSON.parse(cookies.user);
-        let id = userCurrent.id
+
+    static showFormFriend(friends, indexHtml) {
+        let tbody = '';
+        friends.map((post, index) => {
+            tbody += `
+            <div class="col-sm-12" style="margin-top: 30px">
+              <div class="row align-items-start">
+                <div class="col-sm-5 container text-center text-white">
+                  <div class="container text-center">
+                     <div class="row align-items-start">
+                      <div class="col-sm-2" style="text-align: left; padding: 9% 0">
+                          <div class="container"><img src="/public/${post.userImage}" alt="Khong Co"  class="rounded-circle"alt="Quantrimang.com" width="100" height="auto"></div>
+                       </div>
+                       <div class="col-sm-6" style="text-align: left; padding: 12% 0">
+                          <h1>${post.fullName}</h1>
+                            <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-at-fill" viewBox="0 0 16 16"><path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2H2Zm-2 9.8V4.698l5.803 3.546L0 11.801Zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586l-1.239-.757ZM16 9.671V4.697l-5.803 3.546.338.208A4.482 4.482 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671Z"/><path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034v.21Zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791Z"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg> Email: ${post.userEmail}</p>
+                          <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-balloon-heart-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.49 10.92C19.412 3.382 11.28-2.387 8 .986 4.719-2.387-3.413 3.382 7.51 10.92l-.234.468a.25.25 0 1 0 .448.224l.04-.08c.009.17.024.315.051.45.068.344.208.622.448 1.102l.013.028c.212.422.182.85.05 1.246-.135.402-.366.751-.534 1.003a.25.25 0 0 0 .416.278l.004-.007c.166-.248.431-.646.588-1.115.16-.479.212-1.051-.076-1.629-.258-.515-.365-.732-.419-1.004a2.376 2.376 0 0 1-.037-.289l.008.017a.25.25 0 1 0 .448-.224l-.235-.468ZM6.726 1.269c-1.167-.61-2.8-.142-3.454 1.135-.237.463-.36 1.08-.202 1.85.055.27.467.197.527-.071.285-1.256 1.177-2.462 2.989-2.528.234-.008.348-.278.14-.386Z"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg> Ngày Sinh: ${post.birthday}</p>
+                          <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg> Tuổi: ${post.age}</p>
+                       </div>
+                        <div class="col-sm-4" style="text-align: right; padding:13% 0">
+                          <a href="user/editInfo/{id}"><button type="button" class="btn btn-outline-secondary text-white" >Kết Bạn</button></a>
+                        </div>
+                  </div>  
+                </div>
+              </div>`
+        })
+        indexHtml = indexHtml.replace('{user}', tbody)
+        return indexHtml;
+    }
+
+    static showPage(req, res) {
         fs.readFile('./views/user/userPage.html', 'utf-8', async (err, userHtml) => {
             if (err) {
                 console.log(err)
             } else {
                 const cookies = cookie.parse(req.headers.cookie || '');
                 let userCurrent = JSON.parse(cookies.user);
+                console.log(userCurrent)
                 let id = userCurrent.id
                 let users = await UserService.findById(id)
                 userHtml = UserHandleRouting.getPage(users, userHtml)
@@ -257,7 +333,37 @@ class UserHandleRouting {
                 res.end();
             }
         })
+    }
 
+    static showPageFriend(req, res, id) {
+        fs.readFile('./views/user/userPage.html', 'utf-8', async (err, friendHtml) => {
+            if (err) {
+                console.log(err)
+            } else {
+                let users = await UserService.findById(id)
+                friendHtml = UserHandleRouting.showFormFriend(users, friendHtml)
+                friendHtml = friendHtml.replace('{fullName}', users[0].fullName);
+                friendHtml = friendHtml.replace('{userName}', users[0].userName);
+                friendHtml = friendHtml.replace('{password}', users[0].password);
+                friendHtml = friendHtml.replace('{userEmail}', users[0].userEmail);
+                friendHtml = friendHtml.replace('{birthday}', users[0].birthday);
+                friendHtml = friendHtml.replace('{age}', users[0].age);
+                let posts = await PostService.showPage(id)
+                users = UserHandleRouting.getPageFriend(posts, friendHtml)
+                res.writeHead(200, 'text/html');
+                res.write(users);
+                res.end();
+            }
+        })
+
+    }
+
+    checkIdFormUser(req, res, id) {
+        if (isNaN(id)) {
+            UserHandleRouting.showPage(req, res);
+        } else {
+            UserHandleRouting.showPageFriend(req, res, id)
+        }
     }
 }
 

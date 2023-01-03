@@ -17,7 +17,7 @@ class UserService {
     signUp(user) {
         let connection = Connection.getConnection();
         return new Promise((resolve, reject) => {
-            connection.query(`INSERT INTO user(userName, password,userEmail,birthday,age) VALUES ('${user.username}',${user.password},'${user.userEmail}','${user.birthday}',${user.age});`,(err, users) => {
+            connection.query(`INSERT INTO user(fullName, userName, password,userEmail,birthday,age) VALUES ('${user.fullName}','${user.username}',${user.password},'${user.userEmail}','${user.birthday}',${user.age});`,(err, users) => {
                 if (err) {
                     reject(err)
                 } else {
