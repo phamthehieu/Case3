@@ -2,7 +2,7 @@ const Connection = require('../model/connection');
 Connection.connecting();
 
 class PostService {
-    findHome() {
+     findHome() {
         let connection = Connection.getConnection();
         return new Promise((resolve, reject) => {
             connection.query(`SELECT * FROM post p JOIN user U ON p.idUser = U.id;`,(err, product) => {
